@@ -33,23 +33,28 @@ function questions() {
         console.log(answers.choice);
         switch (answers.choice) {
             case "View all employees":
-                viewEmployees()
+                viewEmployees();
                 break;
 
             case "View all departments":
-                veiwDepartments()
+                viewDepartments();
+                break;
+
+            
+            case "View all roles":
+                viewRoles();
                 break;
 
             case "Add employee":
-                newEmployee()
+                newEmployee();
                 break;
 
             case "Add department":
-                newDepartment()
+                newDepartment();
                 break;
 
             case "Add role":
-                newRole()
+                newRole();
                 break;
 
             case "update employee role":
@@ -57,8 +62,30 @@ function questions() {
                 break;
 
             default:
-                connection.end()
+                connection.end();
                 break;
         }
-    })
+    });
 }
+//command to view all from employee table
+function viewEmployees() {
+    connection.query("SELECT * FROM employee", function (err, data) {
+        console.table(data);
+        questions();
+    });
+}
+//command to view all from department table
+function viewDepartments() {
+    connection.query("SELECT * FROM department", function (err, data) {
+        console.table(data);
+        questions();
+    });
+}
+
+function viewRoles() {
+    connection.query("SELECT * FROM roles", function (err, data) {
+        console.table(data);
+        questions();
+    });
+}
+
