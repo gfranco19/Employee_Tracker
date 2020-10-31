@@ -92,45 +92,62 @@ function viewRoles() {
 }
 
 function newEmployee() {
-    inquirer.prompt([{
-            type: "input",
-            message: "What is the employees first name?",
-            name: "firstName"
+    const roleArray = [];
+    connection.query("SELECT id, title FROM roles", (err, res) => {
+      if(err) throw err;
+      for(let i = 0; i < res.length; i++) {
+        roleArray.push(res[i].title)
+      }
+      inquirer.prompt([
+        {
+          type: "input",
+          name: "first_name",
+          message: "What is the employee's first name?"
         },
         {
-            type: "input",
-            message: "What is the employees last name?",
-            name: "lastName"
+          type: "input",
+          name: "last_name",
+          message: "What is the their last name?"
         },
         {
-            type: "number",
-            message: "What is the employees role ID",
-            name: "roleId"
+          type: "list",
+          name: "role",
+          message: "What is the their role?",
+          choices: roleArray
         },
         {
-            type: "number",
-            message: "What is the employees manager's ID?",
-            name: "roleId"
+          type: "input",
+          name: "manager",
+          message: "What is the their manager's id number? (If none, leave blank)"
         }
-    ]).then(function(res) {
-        connection.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [res.firstName, res.lastName, res.roleId, res.managerId], function(err, data) {
-            if (err) throw err;
-            console.table("Successfully Inserted", data);
-            askQuestions();
+      ]).then((answers) => {
+        if(answers.manager === "") {
+          answers.manager = null;
+        }
+        for(let i = 0; i < res.length; i++) {
+          if(answers.role === res[i].title) {
+            roleID = res[i].id;
+          }
+        }
+        connection.query("INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",[answers.first_name, answers.last_name, roleID, answers.manager], (err, response) => {
+          if(err) throw err;
+          console.log("Employee added");
+          questions();
         })
+      })
     })
-}
+  }
 
 function newDepartment() {
     inquirer.prompt([{
         type: "input",
         message: "What is the name of the new department you want to add?",
         name: "department"
-    }, ]).then(function(res) {
-        connection.query('INSERT INTO department (name) VALUES (?)', [res.department], function(err, data) {
+    }, ]).then(function(answer) {
+        connection.query('INSERT INTO department(name) VALUES (?)', [answer.department], function(err, response) {
             if (err) throw err;
-            console.table("Successfully Inserted", data);
-            askQuestions();
+            console.table("Successfully Inserted");
+            questions();
         })
     })
 }
@@ -154,8 +171,9 @@ function newRole() {
     ]).then(function (response) {
         connection.query("INSERT INTO roles (title, salary, department_id) values (?, ?, ?)", [response.title, response.salary, response.department_id], function (err, data) {
             console.table("Successfully Inserted",data);
+
         })
-        askQuestions();
+        questions();
     })
 
 }
@@ -176,7 +194,7 @@ function updateRole() {
         connection.query("UPDATE employee SET role_id = ? WHERE first_name = ?", [response.role_id, response.name], function (err, data) {
             console.table("Successfully Inserted", data);
         })
-        askQuestions();
+        questions();
     })
 
 }
