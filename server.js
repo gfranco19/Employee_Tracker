@@ -16,9 +16,6 @@ connection.connect(function (err) {
 });
 
 function questions() {
-    connection.query("SELECT employee.id, employee.first_name, employeee.lastname, roles.title, department.name, roles.salary, employee.manager_id FROM employee INNER JOIN roles ON roles.deparment_id = department_id INNER JOIN employee.role_id = employee.role_id", function (err, data) {
-        console.table(data);
-    });
     inquirer.prompt({
         message: "How can i help you today?",
         type: "list",
